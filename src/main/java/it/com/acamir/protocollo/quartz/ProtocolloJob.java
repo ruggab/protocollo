@@ -21,8 +21,8 @@ public class ProtocolloJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try {
         	dataStreamService.creaImmagineDaFile();
-        	dataStreamService.associaImmagineTestoApdf();
-        	dataStreamService.associaBarcodeApdf();
+        	dataStreamService.associaImmagineAPdf();
+        	//dataStreamService.associaBarcodeApdf();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

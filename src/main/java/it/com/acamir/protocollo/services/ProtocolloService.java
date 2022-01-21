@@ -1,5 +1,6 @@
 package it.com.acamir.protocollo.services;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Locale;
@@ -71,7 +73,7 @@ public class ProtocolloService {
 		g2d.setFont(font);
 		// FontMetrics fm = g2d.getFontMetrics();
 
-		//img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		// img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		g2d = img.createGraphics();
 		g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -90,8 +92,8 @@ public class ProtocolloService {
 		int nextLinePosition = 100;
 		int fontSize = 20;
 		try {
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1"));
-			
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO-8859-1"));
+
 			String barcode = "";
 			String line;
 			int x = 10;
@@ -122,16 +124,39 @@ public class ProtocolloService {
 		}
 
 		g2d.dispose();
+
 		try {
 			ImageIO.write(img, "png", new File("C://APPO//protocollo//generati//042.png"));
 		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		try {
+			BufferedImage img1 = ImageIO.read(new File("C://APPO//protocollo//generati//042.png"));
+			BufferedImage img2 = ImageIO.read(new File("C://APPO//protocollo//generati//042_barcode.png"));
+			// BufferedImage imgTesto = getImage("C://APPO//protocollo//generati//042.png");
+			// BufferedImage imgBarcode = getImage("C://APPO//protocollo//generati//042_barcode.png");
+			BufferedImage joinedImg = joinBufferedImage(img1, img2);
+			boolean success = ImageIO.write(joinedImg, "png", new File("C://APPO//protocollo//generati//joined.png"));
+			System.out.println("saved success? " + success);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		try {
+			BufferedImage myPicture = ImageIO.read(new File("C://APPO//protocollo//generati//joined.png"));
+			Graphics2D g = (Graphics2D) myPicture.getGraphics();
+			//g.setStroke(new BasicStroke(3));
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawRect(0, 70, myPicture.getWidth()-1, myPicture.getHeight()-71);
+			ImageIO.write(myPicture, "png", new File("C://APPO//protocollo//generati//joined_border.png"));
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 
 		log.info("*********job stop crea imm barcode e testo *************");
 	}
 
-	public void associaImmagineTestoApdf() {
+	public void associaImmagineAPdf() {
 		log.info("*********associaImmagineApdf start*************");
 		try {
 			// Getting path of current working directory
@@ -145,9 +170,9 @@ public class ProtocolloService {
 			Document document = new Document(pdfDocument);
 
 			// Load image from disk
-			ImageData imageData = ImageDataFactory.create("C://APPO//protocollo//generati//" + "042.png");
+			ImageData imageData = ImageDataFactory.create("C://APPO//protocollo//generati//joined_border.png");
 			// Create layout image object and provide parameters. Page number = 1
-			Image image = new Image(imageData).scaleAbsolute(160,100).setFixedPosition(1, 350, 750);
+			Image image = new Image(imageData).scaleAbsolute(160, 100).setFixedPosition(1, 350, 750);
 			// This adds the image to the page
 			document.add(image);
 			// Don't forget to close the document.
@@ -163,74 +188,63 @@ public class ProtocolloService {
 		}
 	}
 
-	public void associaBarcodeApdf() {
-		log.info("*********associaImmagineApdf start*************");
-		try {
-			// Getting path of current working directory
-			// to create the pdf file in the same directory of
-			// the running java program
-			String pdfPath = "C://APPO//protocollo//generati//042_image.pdf";
-			String pdfPath2 = "C://APPO//protocollo//generati//042_barcode.pdf";
-			// Modify PDF located at "source" and save to "target"
-			PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath), new PdfWriter(pdfPath2));
-			// Document to add layout elements: paragraphs, images etc
-			Document document = new Document(pdfDocument);
-
-			// Load image from disk
-			ImageData imageData = ImageDataFactory.create("C://APPO//protocollo//generati//" + "042_barcode.png");
-			// Create layout image object and provide parameters. Page number = 1
-			Image image = new Image(imageData).scaleAbsolute(200,25).setFixedPosition(1, 340, 720);
-			// This adds the image to the page
-			document.add(image);
-			// Don't forget to close the document.
-			// When you use Document, you should close it rather than PdfDocument instance
-			document.close();
-
-			// Closing the document
-			System.out.println("Image added successfully and PDF file created!");
-
-			log.info("*********associaImmagineApdf fine*************");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	// public void associaBarcodeApdf() {
+	// log.info("*********associaImmagineApdf start*************");
+	// try {
+	// // Getting path of current working directory
+	// // to create the pdf file in the same directory of
+	// // the running java program
+	// String pdfPath = "C://APPO//protocollo//generati//042_image.pdf";
+	// String pdfPath2 = "C://APPO//protocollo//generati//042_barcode.pdf";
+	// // Modify PDF located at "source" and save to "target"
+	// PdfDocument pdfDocument = new PdfDocument(new PdfReader(pdfPath), new PdfWriter(pdfPath2));
+	// // Document to add layout elements: paragraphs, images etc
+	// Document document = new Document(pdfDocument);
+	//
+	// // Load image from disk
+	// ImageData imageData = ImageDataFactory.create("C://APPO//protocollo//generati//" + "042_barcode.png");
+	// // Create layout image object and provide parameters. Page number = 1
+	// Image image = new Image(imageData).scaleAbsolute(200, 25).setFixedPosition(1, 340, 720);
+	// // This adds the image to the page
+	// document.add(image);
+	// // Don't forget to close the document.
+	// // When you use Document, you should close it rather than PdfDocument instance
+	// document.close();
+	//
+	// // Closing the document
+	// System.out.println("Image added successfully and PDF file created!");
+	//
+	// log.info("*********associaImmagineApdf fine*************");
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 	private static BufferedImage generateEAN13BarcodeImage(String barcodeText, String nomeFileJpg) {
-
 		try {
-//			BarcodeUtil util = BarcodeUtil.getInstance();
-//			BarcodeGenerator gen = util.createBarcodeGenerator(buildCfg("ean-128"));
-//
-//			OutputStream fout = new FileOutputStream(nomeFileJpg);
-//			int resolution = 200;
-//			BitmapCanvasProvider canvas = new BitmapCanvasProvider(fout, "image/jpeg", resolution, BufferedImage.TYPE_BYTE_BINARY, false, 0);
-//
-//			gen.generateBarcode(canvas, barcodeText);
-//			canvas.finish();
-			//return null;
-			
-			 OutputStream fout = new FileOutputStream(nomeFileJpg);
-			 //BarcodeUtil util = BarcodeUtil.getInstance();
-		     //BarcodeGenerator gen;
-		     try {
-		         //Create the barcode bean
-		         Code128Bean bean = new Code128Bean();
-		         int dpi = 200;
-		         //Configure the barcode generator
-		        // bean.setModuleWidth(UnitConv.in2mm(1.1f / dpi)); //makes the narrow bar, width exactly one pixel
-		         bean.doQuietZone(true);
-		         bean.setBarHeight(3);
-		         //bean.setVerticalQuietZone(3);
-		        // bean.setQuietZone(0);
-		         bean.setMsgPosition(HumanReadablePlacement.HRP_NONE);
-		         BitmapCanvasProvider canvas = new BitmapCanvasProvider(fout, "image/jpeg", dpi, BufferedImage.TYPE_BYTE_BINARY, false, 0);
-		         bean.generateBarcode(canvas, barcodeText);
-		         canvas.finish();
-		     } catch (IOException  e) {
-		         throw e;
-		     }
-		     return null;	
-			
+
+			OutputStream fout = new FileOutputStream(nomeFileJpg);
+			// BarcodeUtil util = BarcodeUtil.getInstance();
+			// BarcodeGenerator gen;
+			try {
+				// Create the barcode bean
+				Code128Bean bean = new Code128Bean();
+				int dpi = 200;
+				// Configure the barcode generator
+				// bean.setModuleWidth(UnitConv.in2mm(1.1f / dpi)); //makes the narrow bar, width exactly one pixel
+				bean.doQuietZone(true);
+				bean.setBarHeight(3);
+				// bean.setVerticalQuietZone(3);
+				// bean.setQuietZone(0);
+				bean.setMsgPosition(HumanReadablePlacement.HRP_NONE);
+				BitmapCanvasProvider canvas = new BitmapCanvasProvider(fout, "image/jpeg", dpi, BufferedImage.TYPE_BYTE_BINARY, false, 0);
+				bean.generateBarcode(canvas, barcodeText);
+				canvas.finish();
+			} catch (IOException e) {
+				throw e;
+			}
+			return null;
+
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -251,6 +265,51 @@ public class ProtocolloService {
 
 		child.addChild(attr);
 		return cfg;
+	}
+
+	private BufferedImage getImage(String filename) {
+		// This time, you can use an InputStream to load
+		try {
+			// Grab the InputStream for the image.
+			InputStream in = getClass().getResourceAsStream(filename);
+
+			// Then read it.
+			return ImageIO.read(in);
+		} catch (Exception e) {
+			System.out.println("The image was not loaded.");
+			// System.exit(1);
+		}
+
+		return null;
+	}
+
+	
+
+	public static BufferedImage joinBufferedImage(BufferedImage img1, BufferedImage img2) {
+
+		// do some calculate first
+		int offset = 5;
+		int wid = Math.max(img1.getWidth(), img2.getWidth()) + offset;
+		int height = img1.getHeight() + img2.getHeight() + offset + 10;
+		// create a new buffer and draw two image into the new image
+		BufferedImage newImage = new BufferedImage(wid, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D gra = newImage.createGraphics();
+		Color oldColor = gra.getColor();
+		// fill background
+		gra.setPaint(Color.WHITE);
+		gra.fillRect(0, 0, wid, height);
+		// draw image
+		gra.setColor(oldColor);
+		//
+		gra.drawImage(img1, null, 0, 0);
+		gra.drawImage(img2, null, 45, img1.getHeight() + offset);
+		gra.dispose();
+		return newImage;
+		
+//		g.setColor(Color.BLUE);
+//		g.drawRect(0, 0, myPicture.getWidth(), myPicture.getHeight());
+//		ImageIO.write(myPicture, "jpg", new File("C://APPO//protocollo//generati//joined_border.png"));
+
 	}
 
 }
