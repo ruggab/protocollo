@@ -11,6 +11,7 @@ public class PropertiesUtil {
 	private static String pathDaProtocollare;
 	private static String pathProtocollati;
 	private static String pathDaRimuovere;
+	private static String position;
 	
 	
 	public static String getCronExpression() {
@@ -46,6 +47,13 @@ public class PropertiesUtil {
 	}
 	
 	
+	public static String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
 	
 	
 
